@@ -15,8 +15,9 @@ exports.signup = async (req, res) => {
         user = new User({ name, email, password: hashedPassword,uploadImage,mobile,DateofBirth,bio });
 
         await user.save();
-        res.status(201).json({ message: 'User registered successfully' });
-       
+        const token = jwt.sign({id: user._id}, 'secretkey', { expiresIn: '1h' });
+
+        res.json({ token, id: user.id });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
