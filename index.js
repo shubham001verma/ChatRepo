@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/ChatApp').then(()=>{
+mongoose.connect('mongodb+srv://sshubham123verma:shubham123@cluster0.fbixo.mongodb.net/ChatApp').then(()=>{
     console.log('MongoDB connected...');
 });
 
