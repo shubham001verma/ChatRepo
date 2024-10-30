@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-const socketHandler = require('./socket');
+const {socketHandler} = require('./socket');
 
 const mongoose  = require('mongoose');
 
