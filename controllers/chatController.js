@@ -1,24 +1,23 @@
 const Message = require('../models/Message');
 
 exports.saveMessage = async (req, res) => {
-    const { roomId, text, sender } = req.body;
     try {
-        const message = new Message({ roomId, text, sender });
-        await message.save();
-        res.status(201).json(message);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        const { roomId, sender, text } = req.body;
+        const newMessage = new Message({ roomId, sender, text });
+        await newMessage.save();
+
+        io.to(roomId).emit('message', newMessage); // Emit to all clients in the room
+        res.json(newMessage);
+    } catch (error) {
+        res.status(500).json({ error: 'Error sending message' });
     }
 };
 
 exports.getMessages = async (req, res) => {
-    const { roomId } = req.params;
     try {
-        const messages = await Message.find({ roomId }).sort({ timestamp: 1 });
+        const messages = await Message.find({ roomId: req.params.roomId });
         res.json(messages);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching messages' });
     }
 };
