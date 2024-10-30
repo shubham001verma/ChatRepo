@@ -52,13 +52,15 @@ exports.login = async (req, res) => {
 // Get all users
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({}); // Exclude password
+        const loggedInUserId = req.user.id; // Assuming the logged-in user's ID is available in req.user.id
+        const users = await User.find({ _id: { $ne: loggedInUserId } }); // Exclude the logged-in user
         res.status(200).json(users);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
 };
+
 
 // Get user by ID
 exports.getUser = async (req, res) => {
