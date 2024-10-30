@@ -1,5 +1,8 @@
 const Message = require('../models/Message');
 const io = require('../socket');
+const { getIo } = require('../socket'); // Adjust path
+
+
 
 exports.saveMessage = async (req, res) => {
     try {
@@ -7,8 +10,9 @@ exports.saveMessage = async (req, res) => {
         const newMessage = new Message({ roomId, sender, text });
         await newMessage.save();
 
-        await io.to(roomId).emit('message', newMessage); // Emit to all clients in the room
-        await res.json(newMessage);
+        const io = getIo();  // Retrieve the initialized io instance
+        io.to(roomId).emit('message', newMessage); // Broadcast message to the room
+        res.json(newMessage); 
     } catch (error) {
         res.status(500).json({ error: 'Error sending message' });
     }
