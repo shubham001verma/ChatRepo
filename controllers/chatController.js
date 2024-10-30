@@ -7,8 +7,8 @@ exports.saveMessage = async (req, res) => {
         const newMessage = new Message({ roomId, sender, text });
         await newMessage.save();
 
-        io.to(roomId).emit('message', newMessage); // Emit to all clients in the room
-        res.json(newMessage);
+        await io.to(roomId).emit('message', newMessage); // Emit to all clients in the room
+        await res.json(newMessage);
     } catch (error) {
         res.status(500).json({ error: 'Error sending message' });
     }
