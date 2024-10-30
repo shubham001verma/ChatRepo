@@ -21,6 +21,6 @@ router.get('/users', getAllUsers);
 router.get('/users/:id', getUser); 
 router.put('/update/:id',upload.single("uploadImage"), updateUser); 
 router.delete('/users/:id', deleteUser); 
-router.get('/logout', logoutUser);
+router.post('/logout', logoutUser);
 
 module.exports = router;
