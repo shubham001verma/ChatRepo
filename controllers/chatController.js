@@ -1,4 +1,5 @@
 const Message = require('../models/Message');
+const io = require('../socket');
 
 exports.saveMessage = async (req, res) => {
     try {
