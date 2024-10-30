@@ -52,8 +52,8 @@ exports.login = async (req, res) => {
 // Get all users
 exports.getAllUsers = async (req, res) => {
     try {
-        const loggedInUserId = req.user.id; // Assuming the logged-in user's ID is available in req.user.id
-        const users = await User.find({ _id: { $ne: loggedInUserId } }); // Exclude the logged-in user
+       
+        const users = await User.find(); 
         res.status(200).json(users);
     } catch (err) {
         console.error(err.message);
