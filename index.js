@@ -3,11 +3,12 @@ const http = require('http');
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const {socketHandler} = require('./socket');
-
+const cors = require('cors');
 const mongoose  = require('mongoose');
 
 const app = express();
 const server = http.createServer(app);
+app.use(cors());
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://sshubham123verma:shubham123@cluster0.fbixo.mongodb.net/ChatApp').then(()=>{
