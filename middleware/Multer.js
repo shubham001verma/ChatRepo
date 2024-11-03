@@ -8,7 +8,7 @@ const imgconfig = multer.diskStorage({
         callback(null, "uploads/");
     },
     filename: (req, file, callback) => {
-        callback(null, Date.now() + path.extname(file.originalname));
+        callback(null, Date.now() +'_'+ file.fieldname +  path.extname(file.originalname));
     }
 });
 
