@@ -27,3 +27,13 @@ exports.getMessages = async (req, res) => {
         res.status(500).json({ error: 'Error fetching messages' });
     }
 };
+exports.clearMessages = async (req, res) => {
+    const { roomId } = req.params;
+    try {
+        await Message.deleteMany({ roomId });
+        res.status(200).json({ message: 'Messages cleared' });
+    } catch (error) {
+        console.error('Error clearing messages:', error);
+        res.status(500).json({ error: 'Could not clear messages' });
+    }
+};
