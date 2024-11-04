@@ -53,4 +53,45 @@ exports.deleteMessage = async (req, res) => {
         console.error('Error deleting message:', error);
         res.status(500).json({ message: 'Error deleting message' });
     }
+
+
+
+
+    
+exports.updateMessage = async (req, res) => {
+    const { roomId, messageId } = req.params;
+
+    try {
+        // Find the message by roomId and messageId, and update the `read` field to false
+        const updatedMessage = await Message.findOneAndUpdate(
+            { _id: messageId, roomId },
+            { read: true },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedMessage) {
+            return res.status(404).json({ message: 'Message not found' });
+        }
+
+        res.status(200).json({ message: 'Message updated successfully', updatedMessage });
+    } catch (error) {
+        console.error('Error updating message:', error);
+        res.status(500).json({ message: 'Error updating message' });
+    }
 };
+
+
+
+exports.notification = async (req, res) => {
+    try {
+        const roomId = req.params.roomId;
+        const notifications = await Message.find({ roomId: roomId, read:false });
+        
+        res.json(notifications.length.toString());
+        console.log(notifications.length.toString());
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ error: 'Failed to fetch notifications' });
+    }
+};
+
