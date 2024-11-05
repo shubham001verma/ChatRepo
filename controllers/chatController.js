@@ -7,8 +7,10 @@ const { getIo } = require('../socket'); // Adjust path
 exports.saveMessage = async (req, res) => {
     try {
         const { roomId, sender, text } = req.body;
-          const image=  req.file ? req.file.path : null
-        const newMessage = new Message({ roomId, sender, text,image });
+          const image= req.files.image ? req.files.image.map(file => file.path) : [];
+         const video= req.files.video ? req.files.video.map(file => file.path) : [];
+         const pdf= req.files.pdf ? req.files.pdf.map(file => file.path) : [];
+        const newMessage = new Message({ roomId, sender, text,image ,video,pdf});
         await newMessage.save();
 
         const io = getIo();  // Retrieve the initialized io instance
