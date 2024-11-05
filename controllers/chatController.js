@@ -87,7 +87,7 @@ exports.notification = async (req, res) => {
         const roomId = req.params.roomId;
         const notifications = await Message.find({ roomId: roomId, read:false });
         
-        res.json(notifications.length.toString());
+        res.json(notifications);
        
     } catch (error) {
         console.error('Error fetching notifications:', error);
