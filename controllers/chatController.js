@@ -7,16 +7,38 @@ const { getIo } = require('../socket'); // Adjust path
 exports.saveMessage = async (req, res) => {
     try {
         const { roomId, sender, text } = req.body;
-        
-        // Safely extract files, using empty arrays if none are present
-        const image = req.files?.image ? req.files.image.map(file => file.path) : [];
-        const video = req.files?.video ? req.files.video.map(file => file.path) : [];
-        const pdf = req.files?.pdf ? req.files.pdf.map(file => file.path) : [];
+        const files = req.files;
 
-        // Create a new message instance with file paths included
-        const newMessage = new Message({ roomId, sender, text, image, video, pdf });
-        await newMessage.save();
+        // Arrays to hold file paths for each type
+        let images = [];
+        let videos = [];
+        let pdfs = [];
 
+        // Separate files by type and push their paths to respective arrays
+        files.forEach(file => {
+            const filePath = file.path;
+            if (file.mimetype.startsWith('image/')) {
+                images.push(filePath);
+            } else if (file.mimetype === 'video/mp4') {
+                videos.push(filePath);
+            } else if (file.mimetype === 'application/pdf') {
+                pdfs.push(filePath);
+            }
+        });
+
+        // Create and save the message
+        const message = new Message({
+            roomId,
+            sender,
+            text,
+            image: images,
+            video: videos,
+            pdf: pdfs,
+            read: false,
+        });
+
+        const savedMessage = await message.save();
+        res.status(200).json(savedMessage);
         // Retrieve the initialized io instance
         const io = getIo();
         
