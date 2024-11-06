@@ -3,7 +3,11 @@ const { saveMessage, getMessages,clearMessages,deleteMessage ,updateMessage,noti
 const upload = require('../middleware/Multer')
 const router = express.Router();
 
-router.post('/messages', upload.array('files'), saveMessage);
+router.post('/messages', upload.fields([
+    { name: 'image', maxCount: 10 },
+    { name: 'video', maxCount: 10 },
+    { name: 'pdf', maxCount: 10 }
+]),saveMessage);
 router.get('/messages/:roomId', getMessages);
 router.delete('/messages/clear/:roomId',clearMessages);
 router.delete('/message/delete/:roomId/:messageId',deleteMessage);
