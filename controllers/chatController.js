@@ -4,60 +4,37 @@ const { getIo } = require('../socket'); // Adjust path
 
 
 
-const { getIo } = require('../utils/socket'); // Adjust the path as needed
-const Message = require('../models/Message'); // Adjust the path to your Message model
-
 exports.saveMessage = async (req, res) => {
     try {
         const { roomId, sender, text } = req.body;
-        const files = req.files;
+       const image= req.files['image'] ? req.files['image'].map(file => file.path) : [];
+       const     video= req.files['video'] ? req.files['video'].map(file => file.path) : [];
+        const    pdf= req.files['pdf'] ? req.files['pdf'].map(file => file.path) : [];
 
-        // Arrays to hold file paths for each type
-        let images = [];
-        let videos = [];
-        let pdfs = [];
-
-        // Separate files by type and push their paths to respective arrays
-        if (files && files.length > 0) {
-            files.forEach(file => {
-                const filePath = file.path;
-                if (file.mimetype.startsWith('image/')) {
-                    images.push(filePath);
-                } else if (file.mimetype === 'video/mp4') {
-                    videos.push(filePath);
-                } else if (file.mimetype === 'application/pdf') {
-                    pdfs.push(filePath);
-                }
-            });
-        }
-
-        // Create and save the message
+        // Create and save the message with uploaded files
         const message = new Message({
             roomId,
             sender,
             text,
-            images,  // Adjusted field name to match your schema
-            videos,  // Adjusted field name to match your schema
-            pdfs,     // Adjusted field name to match your schema
+            image,  // Store image file paths
+            video,  // Store video file paths
+            pdf,     // Store PDF file paths
             read: false,
         });
 
         const savedMessage = await message.save();
 
-        // Retrieve the initialized io instance
+        // Emit message over socket to notify clients in the room
         const io = getIo();
-        
-        // Broadcast message to the specified room
         io.to(roomId).emit('message', savedMessage);
 
-        // Respond with the new message
+        // Respond with the saved message
         res.status(200).json(savedMessage);
     } catch (error) {
         console.error('Error saving message:', error);
         res.status(500).json({ error: 'Error sending message' });
-    }
+    } 
 };
-
 
 exports.getMessages = async (req, res) => {
     try {
