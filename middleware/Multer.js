@@ -11,17 +11,9 @@ const storage = multer.diskStorage({
     },
 });
 
-// File filter based on type
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'video/mp4', 'application/pdf'];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Only images, videos, and PDFs are allowed'), false);
-    }
-};
 
-const upload = multer({ storage, fileFilter });
+
+const upload = multer({ storage });
 
 
 // Export the middleware for use in routes
