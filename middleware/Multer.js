@@ -3,26 +3,20 @@ const fs = require("fs/promises"); // For file handling (image deletion)
 const path = require("path");
 
 // Image storage configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Make sure this directory exists
+const imgconfig = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, "uploads/");
     },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`);
-    },
+    filename: (req, file, callback) => {
+        callback(null, Date.now()+ path.extname(file.originalname));
+    }
 });
 
-// File filter based on type
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'video/mp4', 'application/pdf'];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Only images, videos, and PDFs are allowed'), false);
-    }
-};
-
-const upload = multer({ storage, fileFilter });
+// Create the multer upload middleware
+const upload = multer({
+    storage: imgconfig,
+});
 
 // Export the middleware for use in routes
 module.exports = upload;
+
