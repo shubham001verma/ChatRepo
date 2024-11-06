@@ -7,15 +7,24 @@ const { getIo } = require('../socket'); // Adjust path
 exports.saveMessage = async (req, res) => {
     try {
         const { roomId, sender, text } = req.body;
-          const image= req.files.image ? req.files.image.map(file => file.path) : [];
-         const video= req.files.video ? req.files.video.map(file => file.path) : [];
-         const pdf= req.files.pdf ? req.files.pdf.map(file => file.path) : [];
-        const newMessage = new Message({ roomId, sender, text,image ,video,pdf});
+        
+        // Safely extract files, using empty arrays if none are present
+        const image = req.files?.image ? req.files.image.map(file => file.path) : [];
+        const video = req.files?.video ? req.files.video.map(file => file.path) : [];
+        const pdf = req.files?.pdf ? req.files.pdf.map(file => file.path) : [];
+
+        // Create a new message instance with file paths included
+        const newMessage = new Message({ roomId, sender, text, image, video, pdf });
         await newMessage.save();
 
-        const io = getIo();  // Retrieve the initialized io instance
-        io.to(roomId).emit('message', newMessage); // Broadcast message to the room
-        res.json(newMessage); 
+        // Retrieve the initialized io instance
+        const io = getIo();
+        
+        // Broadcast message to the specified room
+        io.to(roomId).emit('message', newMessage);
+        
+        // Respond with the new message
+        res.json(newMessage);
     } catch (error) {
         res.status(500).json({ error: 'Error sending message' });
     }
