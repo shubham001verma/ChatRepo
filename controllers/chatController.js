@@ -37,11 +37,21 @@ exports.saveMessage = async (req, res) => {
 };
 
 exports.getMessages = async (req, res) => {
+   const { roomId } = req.params;
+    const { userId } = req.query;
+
     try {
-        const messages = await Message.find({ roomId: req.params.roomId });
-        res.json(messages);
+        const user = await User.findById(userId);
+        const blockedUsers = user.blockedUsers;
+        
+        const messages = await Message.find({
+            roomId,
+            sender: { $nin: blockedUsers }
+        });
+        
+        res.status(200).json(messages);
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching messages' });
+        res.status(500).json({ error: 'Failed to fetch messages' });
     }
 };
 exports.clearMessages = async (req, res) => {
