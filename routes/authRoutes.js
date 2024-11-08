@@ -25,7 +25,7 @@ router.get('/users/:id', getUser);
 router.put('/update/:id',upload.single("uploadImage"), updateUser); 
 router.put('/block',block);
 router.put('/unblock',unblock);
-router.get('/blocked',checkblock);
+router.get('/blocked/:userId/:targetUserId',checkblock);
 router.delete('/users/:id', deleteUser); 
 router.post('/logout', logoutUser);
 
