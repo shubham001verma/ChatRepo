@@ -7,12 +7,12 @@ const { getIo } = require('../socket'); // Adjust path
 
 exports.saveMessage = async (req, res) => {
     try {
-        const { roomId, sender, text } = req.body;
+        const { roomId, sender, text,selectedUserId } = req.body;
        const image= req.files['image'] ? req.files['image'].map(file => file.path) : [];
        const     video= req.files['video'] ? req.files['video'].map(file => file.path) : [];
         const    pdf= req.files['pdf'] ? req.files['pdf'].map(file => file.path) : [];
         
-    const recipient = await User.findById(receiver);
+    const recipient = await User.findById(selectedUserId);
     if (recipient && recipient.blockedUsers.includes(sender)) {
         return res.status(403).json({ message: 'Message cannot be sent, the user has blocked you' });
     }
