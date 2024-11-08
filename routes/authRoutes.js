@@ -9,8 +9,7 @@ const {
     updateUser,
     deleteUser,
     logoutUser,
-    blockuser,
-    unblockuser
+ 
 } = require('../controllers/authController')
 
 const router = express.Router();
@@ -19,8 +18,6 @@ const router = express.Router();
 
 router.post('/signup',upload.single("uploadImage"), signup);
 router.post('/login', login);
-router.post('/block', blockuser);
-router.post('/unblock', unblockuser);
 router.get('/users', getAllUsers); 
 router.get('/users/:id', getUser); 
 router.put('/update/:id',upload.single("uploadImage"), updateUser); 
