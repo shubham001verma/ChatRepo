@@ -38,16 +38,28 @@ exports.saveMessage = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
  
+    const { roomId } = req.params;
     const { userId } = req.query;
 
     try {
         const user = await User.findById(userId);
-        const blockedUsers = user.blockedUsers;
+        if (!user || !Array.isArray(user.blockedUsers)) {
+            console.log('Blocked list not found or user not found');
+            return res.status(400).json({ error: 'User or blocked list not found' });
+        }
         
-         const messages = await Message.find({ roomId: req.params.roomId , sender: { $nin: blockedUsers }});
+        const blockedUsers = user.blockedUsers.map(id => id.toString());
+        console.log('Blocked Users:', blockedUsers);
+
+        const messages = await Message.find({
+            roomId,
+            sender: { $nin: blockedUsers }
+        });
         
+        console.log('Fetched Messages:', messages);
         res.status(200).json(messages);
     } catch (error) {
+        console.error('Error fetching messages:', error);
         res.status(500).json({ error: 'Failed to fetch messages' });
     }
 };
