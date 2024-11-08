@@ -132,6 +132,20 @@ exports.unblock=async(req,res)=>{
         return res.status(500).json({ message: 'An error occurred', error });
     }
 }
+
+
+exports.checkblock=async(req,res)=>{
+     const { userId, targetUserId } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+        const isBlocked = user.blockedUsers.includes(targetUserId);
+        res.status(200).json({ isBlocked });
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error });
+    }
+}
+
 // Delete user
 exports.deleteUser = async (req, res) => {
     try {
