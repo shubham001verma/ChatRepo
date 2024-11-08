@@ -37,17 +37,14 @@ exports.saveMessage = async (req, res) => {
 };
 
 exports.getMessages = async (req, res) => {
-   const { roomId } = req.params;
+ 
     const { userId } = req.query;
 
     try {
         const user = await User.findById(userId);
         const blockedUsers = user.blockedUsers;
         
-        const messages = await Message.find({
-            roomId,
-            sender: { $nin: blockedUsers }
-        });
+         const messages = await Message.find({ roomId: req.params.roomId , sender: { $nin: blockedUsers }});
         
         res.status(200).json(messages);
     } catch (error) {
