@@ -42,11 +42,22 @@ exports.saveMessage = async (req, res) => {
 };
 
 exports.getMessages = async (req, res) => {
+    const { roomId, userId } = req.params;
+
     try {
-        const messages = await Message.find({ roomId: req.params.roomId });
-        res.json(messages);
+        // Get the current user to check their blocked list
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Fetch messages in the room where the sender is not in the user's blocked list
+        const messages = await Chat.find({
+            roomId,
+            sender: { $nin: user.blockedUsers } // Exclude blocked users' messages
+        }).sort({ timestamp: 1 }); // Assuming you sort by timestamp
+
+        res.status(200).json(messages);
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching messages' });
+        res.status(500).json({ message: 'An error occurred', error });
     }
 };
 exports.clearMessages = async (req, res) => {
