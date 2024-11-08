@@ -43,6 +43,10 @@ exports.saveMessage = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
     try {
+          const recipient = await User.findById(selectedUserId);
+    if (recipient && recipient.blockedUsers.includes(sender)) {
+        return res.status(403).json({ message: 'Message cannot be get, the user has blocked you' });
+    }
         const messages = await Message.find({ roomId: req.params.roomId });
         res.json(messages);
     } catch (error) {
