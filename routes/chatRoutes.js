@@ -8,7 +8,7 @@ router.post('/messages', upload.fields([
     { name: 'video', maxCount: 10 },
     { name: 'pdf', maxCount: 10 }
 ]),saveMessage);
-router.get('/messages//:roomId/:userId', getMessages);
+router.get('/messages/:roomId/:userId', getMessages);
 router.delete('/messages/clear/:roomId',clearMessages);
 router.delete('/message/delete/:roomId/:messageId',deleteMessage);
 router.get('/notification/:roomId',notification);
