@@ -43,16 +43,25 @@ exports.saveMessage = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
     try {
-          const recipient = await User.findById(selectedUserId);
-    if (recipient && recipient.blockedUsers.includes(sender)) {
-        return res.status(403).json({ message: 'Message cannot be get, the user has blocked you' });
-    }
+        const { senderId, recipientId } = req.query; // Assume senderId and recipientId are passed as query parameters
+        const recipient = await User.findById(recipientId);
+
+        if (!recipient) {
+            return res.status(404).json({ message: 'Recipient not found' });
+        }
+
+        if (recipient.blockedUsers.includes(senderId)) {
+            return res.status(403).json({ message: 'Message cannot be fetched, the user has blocked you' });
+        }
+
         const messages = await Message.find({ roomId: req.params.roomId });
         res.json(messages);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error fetching messages' });
     }
 };
+
 exports.clearMessages = async (req, res) => {
     const { roomId } = req.params;
     try {
