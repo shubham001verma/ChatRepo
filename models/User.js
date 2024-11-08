@@ -21,7 +21,10 @@ const userSchema = new mongoose.Schema({
       bio:{
         type: String,
         maxlength: 500,
-      }
+      },
+    // User Schema (add to your existing schema)
+blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
