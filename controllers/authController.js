@@ -97,7 +97,41 @@ exports.updateUser = async (req, res) => {
       res.status(500).json({ message: 'Error updating user', error: error.message });
     }
 }
+exports.block =async(req,res)=>{
+     const { userId, blockUserId } = req.body;
+    
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
+        if (!user.blockedUsers.includes(blockUserId)) {
+            user.blockedUsers.push(blockUserId);
+            await user.save();
+            return res.status(200).json({ message: 'User blocked successfully' });
+        } else {
+            return res.status(400).json({ message: 'User is already blocked' });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+}
+
+
+exports.unblock=async(req,res)=>{
+     const { userId, unblockUserId } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        user.blockedUsers = user.blockedUsers.filter(id => id.toString() !== unblockUserId);
+        await user.save();
+        
+        return res.status(200).json({ message: 'User unblocked successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+}
 // Delete user
 exports.deleteUser = async (req, res) => {
     try {
