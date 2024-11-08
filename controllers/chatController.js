@@ -1,4 +1,5 @@
 const Message = require('../models/Message');
+const User = require('../models/User');
 const io = require('../socket');
 const { getIo } = require('../socket'); // Adjust path
 
@@ -10,7 +11,11 @@ exports.saveMessage = async (req, res) => {
        const image= req.files['image'] ? req.files['image'].map(file => file.path) : [];
        const     video= req.files['video'] ? req.files['video'].map(file => file.path) : [];
         const    pdf= req.files['pdf'] ? req.files['pdf'].map(file => file.path) : [];
-
+        
+    const recipient = await User.findById(receiver);
+    if (recipient && recipient.blockedUsers.includes(sender)) {
+        return res.status(403).json({ message: 'Message cannot be sent, the user has blocked you' });
+    }
         // Create and save the message with uploaded files
         const message = new Message({
             roomId,
