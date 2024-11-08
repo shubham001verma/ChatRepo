@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
 exports.blockuser=async(req,res)=>{
      const { userId, blockUserId } = req.body;
     try {
-        await User.findByIdAndUpdate(userId, { $addToSet: { blockedUsers: blockUserId },  { new: true }  );
+        await User.findByIdAndUpdate(userId, { $addToSet: { blockedUsers: blockUserId }},  { new: true }  );
         res.status(200).json({ message: 'User blocked successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to block user' });
