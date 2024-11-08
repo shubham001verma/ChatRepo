@@ -12,8 +12,8 @@ exports.saveMessage = async (req, res) => {
        const     video= req.files['video'] ? req.files['video'].map(file => file.path) : [];
         const    pdf= req.files['pdf'] ? req.files['pdf'].map(file => file.path) : [];
         
-    const recipient = await User.findById(selectedUserId);
-    if (recipient && recipient.blockedUsers.includes(sender)) {
+    const recipient = await User.findById(sender);
+    if (recipient && recipient.blockedUsers.includes(selectedUserId)) {
         return res.status(403).json({ message: 'Message cannot be sent, the user has blocked you' });
     }
         // Create and save the message with uploaded files
