@@ -134,32 +134,43 @@ exports.unblock=async(req,res)=>{
 }
 
 
+// exports.checkblock=async(req,res)=>{
+//      const { userId, selectedUserId } = req.params;
+
+//     try {
+//         const user = await User.findById(userId);
+//         const isBlocked = user.blockedUsers.includes(selectedUserId);
+//         res.status(200).json({ isBlocked });
+//     } catch (error) {
+//         res.status(500).json({ message: 'An error occurred', error });
+//     }
+// }
 exports.checkblock=async(req,res)=>{
      const { userId, selectedUserId } = req.params;
 
     try {
-        const user = await User.findById(userId);
-        const isBlocked = user.blockedUsers.includes(selectedUserId);
+        const user = await User.findById(selectedUserId);
+        const isBlocked = user.blockedUsers.includes(userId);
         res.status(200).json({ isBlocked });
     } catch (error) {
         res.status(500).json({ message: 'An error occurred', error });
     }
 }
-exports.isblock=async(req,res)=>{
-     const { userId } = req.params;
+// exports.isblock=async(req,res)=>{
+//      const { userId } = req.params;
 
-    try {
-        const user = await User.findById(userId);
+//     try {
+//         const user = await User.findById(userId);
         
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
 
-        res.status(200).json({ isBlocked: user.isBlocked });
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
-    }
-}
+//         res.status(200).json({ isBlocked: user.isBlocked });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Server error', error });
+//     }
+// }
 
 // Delete user
 exports.deleteUser = async (req, res) => {
