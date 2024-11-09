@@ -134,17 +134,17 @@ exports.unblock=async(req,res)=>{
 }
 
 
-// exports.checkblock=async(req,res)=>{
-//      const { userId, selectedUserId } = req.params;
+exports.checkblockuser=async(req,res)=>{
+     const { userId, selectedUserId } = req.params;
 
-//     try {
-//         const user = await User.findById(userId);
-//         const isBlocked = user.blockedUsers.includes(selectedUserId);
-//         res.status(200).json({ isBlocked });
-//     } catch (error) {
-//         res.status(500).json({ message: 'An error occurred', error });
-//     }
-// }
+    try {
+        const user = await User.findById(userId);
+        const isBlocked = user.blockedUsers.includes(selectedUserId);
+        res.status(200).json({ isBlocked });
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error });
+    }
+}
 exports.checkblock=async(req,res)=>{
      const { userId, selectedUserId } = req.params;
 
