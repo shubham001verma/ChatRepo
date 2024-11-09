@@ -11,7 +11,8 @@ const {
     logoutUser,
     block,
     unblock,
-    checkblock
+    checkblock,
+    isblock
 } = require('../controllers/authController')
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.put('/update/:id',upload.single("uploadImage"), updateUser);
 router.put('/block',block);
 router.put('/unblock',unblock);
 router.get('/blocked/:userId/:selectedUserId',checkblock);
+router.get('/isBlocked/:userId',isblock);
 router.delete('/users/:id', deleteUser); 
 router.post('/logout', logoutUser);
 
