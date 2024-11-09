@@ -12,6 +12,7 @@ const {
     block,
     unblock,
     checkblock,
+        checkblockuser,
     isblock
 } = require('../controllers/authController')
 
@@ -26,6 +27,7 @@ router.get('/users/:id', getUser);
 router.put('/update/:id',upload.single("uploadImage"), updateUser); 
 router.put('/block',block);
 router.put('/unblock',unblock);
+router.get('/blockeduser/:userId/:selectedUserId',checkblockuser);
 router.get('/blocked/:userId/:selectedUserId',checkblock);
 router.get('/isBlocked/:userId',isblock);
 router.delete('/users/:id', deleteUser); 
