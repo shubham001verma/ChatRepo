@@ -15,12 +15,9 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true,
         unique: true,
-        validate: {
-            validator: function(v) {
-                return /^\d{10}$/.test(v); // checks if the number has exactly 10 digits
-            },
-            message: props => `${props.value} is not a valid 10-digit number!`
-        }
+        min:10,
+        max:10,      
+    
     },
       DateofBirth:{
         type: String,
