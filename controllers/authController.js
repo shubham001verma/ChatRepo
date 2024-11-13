@@ -6,7 +6,7 @@ exports.signup = async (req, res) => {
     const { name, email, password,mobile,DateofBirth,bio } = req.body;
     const uploadImage=  req.file ? req.file.path : null
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ mobile });
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
@@ -25,9 +25,9 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    const { mobile, password } = req.body;
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ mobile });
         if (!user) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
