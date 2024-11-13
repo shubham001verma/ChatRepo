@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     name: { type: String,  },
-    email: { type: String,  unique: true },
+    email: { type: String,  },
     password: { type: String, },
     uploadImage: {
         type: String, // URL or path to the user's avatar image
