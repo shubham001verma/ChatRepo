@@ -2,6 +2,7 @@
 const express = require('express');
 const upload = require('../middleware/Multer')
 const {
+     verifyOTP,
     signup,
     login,
     getAllUsers,
@@ -19,7 +20,7 @@ const {
 const router = express.Router();
 
 
-
+router.post('/verify-otp', verifyOTP);
 router.post('/signup',upload.single("uploadImage"), signup);
 router.post('/login', login);
 router.get('/users', getAllUsers); 
