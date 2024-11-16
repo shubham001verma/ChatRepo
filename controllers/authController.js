@@ -113,9 +113,9 @@ exports.verifyOTP = async (req, res) => {
 
 
 exports.login = async (req, res) => {
-    const { mobile, password } = req.body;
+    const { email, password } = req.body;
     try {
-        const user = await User.findOne({ mobile });
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
