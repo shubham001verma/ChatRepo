@@ -21,7 +21,7 @@ exports.signup = async (req, res) => {
     const uploadImage = req.file ? req.file.path : null;
 
     try {
-        if (!name || !email || !password || !mobile) {
+        if (!name || !email || !password ) {
             return res.status(400).json({ msg: 'All fields are required.' });
         }
 
