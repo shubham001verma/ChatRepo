@@ -1,28 +1,116 @@
-const User = require('../models/User');
+const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
+const otpStore = new Map();
+const pendingUsers = new Map(); // Temporarily store user data
+
+// Configure Nodemailer
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'sshubham123verma@gmail.com',
+        pass: 'dtnp ttwf dfan quvi', // Use your email app password
+    },
+});
+
+// Signup endpoint
 exports.signup = async (req, res) => {
-    const { name, email, password,mobile,DateofBirth,bio } = req.body;
-    const uploadImage=  req.file ? req.file.path : null
+    const { name, email, password, mobile, DateofBirth, bio } = req.body;
+    const uploadImage = req.file ? req.file.path : null;
+
     try {
-        let user = await User.findOne({ mobile });
-        if (user) {
+        if (!name || !email || !password || !mobile) {
+            return res.status(400).json({ msg: 'All fields are required.' });
+        }
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        user = new User({ name, email, password: hashedPassword,uploadImage,mobile,DateofBirth,bio });
+        const userData = { name, email, password: hashedPassword, uploadImage, mobile, DateofBirth, bio };
 
-        await user.save();
-        const token = jwt.sign({id: user._id}, 'secretkey', { expiresIn: '1h' });
+        const OTP = Math.floor(1000 + Math.random() * 9000).toString();
 
-        res.json({ token, id: user.id });
+        // Send OTP via email
+        const mailOptions = {
+            from: 'sshubham123verma@gmail.com',
+            to: email,
+            subject: 'Your OTP for Signup Verification',
+            text: `Your OTP is ${OTP}. It is valid for 5 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        // Store OTP and user data temporarily
+        otpStore.set(email.toLowerCase(), { otp: OTP, expiresAt: Date.now() + 5 * 60 * 1000 });
+        pendingUsers.set(email.toLowerCase(), userData);
+
+        console.log('Stored OTP:', otpStore.get(email.toLowerCase()));
+
+        res.status(200).json({ msg: 'OTP sent to your email successfully.' });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Error in signup:', err.message);
+        res.status(500).json({ msg: 'Server Error' });
     }
 };
+
+// Verify OTP endpoint
+exports.verifyOTP = async (req, res) => {
+    const { otp, email } = req.body;
+
+    if (!otp || !email) {
+        return res.status(400).json({ msg: 'Email and OTP are required.' });
+    }
+
+    try {
+        const trimmedEmail = email.trim().toLowerCase();
+        console.log('Verifying OTP for email:', trimmedEmail);
+
+        const storedData = otpStore.get(trimmedEmail);
+        if (!storedData) {
+            return res.status(400).json({ msg: 'OTP has expired or is invalid.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ msg: 'Invalid OTP.' });
+        }
+
+        if (Date.now() > storedData.expiresAt) {
+            otpStore.delete(trimmedEmail);
+            pendingUsers.delete(trimmedEmail);
+            return res.status(400).json({ msg: 'OTP has expired. Please request a new one.' });
+        }
+
+        otpStore.delete(trimmedEmail);
+
+        const userData = pendingUsers.get(trimmedEmail);
+        if (!userData) {
+            return res.status(400).json({ msg: 'User data not found. Please sign up again.' });
+        }
+
+        // Save user to database
+        const newUser = new User(userData);
+        await newUser.save();
+
+        pendingUsers.delete(trimmedEmail);
+
+        const token = jwt.sign(
+            { id: newUser._id, email: newUser.email },
+            process.env.JWT_SECRET || 'defaultsecretkey',
+            { expiresIn: '1h' }
+        );
+
+        res.status(200).json({ msg: 'OTP verified successfully. User registered.', token, userId: newUser._id });
+    } catch (err) {
+        console.error('Error in verifyOTP:', err.message);
+        res.status(500).json({ msg: 'Server Error. Please try again later.' });
+    }
+};
+
 
 exports.login = async (req, res) => {
     const { mobile, password } = req.body;
