@@ -135,7 +135,86 @@ exports.login = async (req, res) => {
     }
 };
 
+exports.forgetPassword = async (req, res) => {
+    const { email } = req.body;
 
+    if (!email) {
+        return res.status(400).json({ msg: 'Email is required.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ msg: 'User with this email does not exist.' });
+        }
+
+        const OTP = Math.floor(1000 + Math.random() * 9000).toString();
+
+        // Send OTP via email
+        const mailOptions = {
+            from: 'sshubham123verma@gmail.com',
+            to: email,
+            subject: 'Your OTP for Password Reset',
+            text: `Your OTP for resetting your password is ${OTP}. It is valid for 5 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        // Store OTP with expiry
+        otpStore.set(email.toLowerCase(), { otp: OTP, expiresAt: Date.now() + 5 * 60 * 1000 });
+
+        console.log('Stored OTP for password reset:', otpStore.get(email.toLowerCase()));
+
+        res.status(200).json({ msg: 'OTP sent to your email for password reset.' });
+    } catch (err) {
+        console.error('Error in forgetPassword:', err.message);
+        res.status(500).json({ msg: 'Server Error. Please try again later.' });
+    }
+};
+
+// Reset Password
+exports.resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+        return res.status(400).json({ msg: 'Email, OTP, and new password are required.' });
+    }
+
+    try {
+        const trimmedEmail = email.trim().toLowerCase();
+
+        const storedData = otpStore.get(trimmedEmail);
+        if (!storedData) {
+            return res.status(400).json({ msg: 'OTP has expired or is invalid.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ msg: 'Invalid OTP.' });
+        }
+
+        if (Date.now() > storedData.expiresAt) {
+            otpStore.delete(trimmedEmail);
+            return res.status(400).json({ msg: 'OTP has expired. Please request a new one.' });
+        }
+
+        otpStore.delete(trimmedEmail);
+
+        const user = await User.findOne({ email: trimmedEmail });
+        if (!user) {
+            return res.status(404).json({ msg: 'User with this email does not exist.' });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ msg: 'Password reset successfully. You can now log in with your new password.' });
+    } catch (err) {
+        console.error('Error in resetPassword:', err.message);
+        res.status(500).json({ msg: 'Server Error. Please try again later.' });
+    }
+};
 
 // Get all users
 exports.getAllUsers = async (req, res) => {
