@@ -2,9 +2,11 @@
 const express = require('express');
 const upload = require('../middleware/Multer')
 const {
-     verifyOTP,
+    verifyOTP,
     signup,
     login,
+    forgetPassword,
+    resetPassword,
     getAllUsers,
     getUser,
     updateUser,
@@ -13,7 +15,7 @@ const {
     block,
     unblock,
     checkblock,
-        checkblockuser,
+    checkblockuser,
     isblock
 } = require('../controllers/authController')
 
@@ -23,6 +25,8 @@ const router = express.Router();
 router.post('/verify-otp', verifyOTP);
 router.post('/signup',upload.single("uploadImage"), signup);
 router.post('/login', login);
+router.post('/forget-password',forgetPassword);
+router.post('/reset-password',resetPassword);
 router.get('/users', getAllUsers); 
 router.get('/users/:id', getUser); 
 router.put('/update/:id',upload.single("uploadImage"), updateUser); 
