@@ -71,44 +71,44 @@ exports.signup = async (req, res) => {
 exports.verifyOTP = async (req, res) => {
     const { otp, email } = req.body;
 
-    if (!otp || !email) {
-        return res.status(400).json({ msg: 'Email and OTP are required.' });
-    }
+ 
 
     try {
         const trimmedEmail = email.trim().toLowerCase();
-        console.log('Verifying OTP for email:', trimmedEmail);
+        console.log('Verifying OTP for:', trimmedEmail);
 
+        // ✅ Check if OTP exists in memory
         const storedData = otpStore.get(trimmedEmail);
+        console.log('Stored OTP Data:', storedData);
+
         if (!storedData) {
             return res.status(400).json({ msg: 'OTP has expired or is invalid.' });
         }
 
+        // ✅ Check if OTP matches
         if (storedData.otp !== otp) {
             return res.status(400).json({ msg: 'Invalid OTP.' });
-        ;
         }
 
+        // ✅ Check if OTP expired
         if (Date.now() > storedData.expiresAt) {
             otpStore.delete(trimmedEmail);
             pendingUsers.delete(trimmedEmail);
             return res.status(400).json({ msg: 'OTP has expired. Please request a new one.' });
         }
 
-        // OTP is valid, clear it from store
-        otpStore.delete(trimmedEmail);
-
+        // ✅ OTP is valid
+        otpStore.delete(trimmedEmail); // Clear OTP
         const userData = pendingUsers.get(trimmedEmail);
+
         if (!userData) {
             return res.status(400).json({ msg: 'User data not found. Please sign up again.' });
         }
 
-        // Save user to database
         const newUser = new User(userData);
         await newUser.save();
 
-        // Clear pending user data after successful registration
-        pendingUsers.delete(trimmedEmail);
+        pendingUsers.delete(trimmedEmail); // Clear user data
 
         const token = jwt.sign(
             { id: newUser._id, email: newUser.email },
@@ -116,12 +116,13 @@ exports.verifyOTP = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        res.status(200).json({ msg: 'OTP verified successfully. User registered.', token, userId: newUser._id });
+        return res.status(200).json({ msg: 'OTP verified successfully. User registered.', token, userId: newUser._id });
     } catch (err) {
         console.error('Error in verifyOTP:', err.message);
-        res.status(500).json({ msg: 'Server Error. Please try again later.' });
+        return res.status(500).json({ msg: 'Server error. Please try again later.' });
     }
 };
+
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
