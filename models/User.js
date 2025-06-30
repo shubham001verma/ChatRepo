@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         maxlength: 500,
       },
+    code: {
+  type: String,
+  unique: true,
+  required: true
+},
     // User Schema (add to your existing schema)
 blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 
