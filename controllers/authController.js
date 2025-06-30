@@ -46,7 +46,7 @@ exports.signup = async (req, res) => {
 
         // Send OTP via email
         const mailOptions = {
-            from: 'sshubham123verma@gmail.com', // Sender address
+            from: 'support@webitof.com', // Sender address
             to: email, // Recipient address
             subject: 'Your OTP for Signup Verification',
             text: `Your OTP is ${OTP}. It is valid for 5 minutes.`,
