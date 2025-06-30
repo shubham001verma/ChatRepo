@@ -6,124 +6,23 @@ const User = require('../models/User');
 const otpStore = new Map();
 const pendingUsers = new Map(); // Temporarily store user data
 
-// Configure Nodemailer
-// const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//         user: 'sshubham123verma@gmail.com',
-//         pass: 'dtnp ttwf dfan quvi', // Use your email app password
-//     },
-// });
+
 const transporter = nodemailer.createTransport({
-    host: 'your_smtp_host.com', // Replace with your SMTP server host (e.g., smtp.sendgrid.net, smtp.mailgun.org)
-    port: 587, // Common ports: 465 (for SMTPS/SSL) or 587 (for STARTTLS)
+    host: 'smtp.hostinger.com', // Replace with your SMTP server host (e.g., smtp.sendgrid.net, smtp.mailgun.org)
+    port: 465, // Common ports: 465 (for SMTPS/SSL) or 587 (for STARTTLS)
     secure: false, // Use true for port 465 (SSL), false for port 587 (STARTTLS).
                     // If using secure: false and port 587, ensure 'requireTLS: true' might be needed
                     // depending on your server's configuration.
     auth: {
-        user: 'sshubham123verma@gmail.com', // Your email address
-        pass: 'dtnp ttwf dfan quvi', // Your email password or app-specific password
+        user: 'support@webitof.com', // Your email address
+        pass: 'w2k-Em8Q:c3zDRi', // Your email password or app-specific password
     },
     // Optional: Add TLS options if needed for self-signed certificates or specific TLS versions
     // tls: {
     //     rejectUnauthorized: false // Set to true for production, false only for development with self-signed certs
     // }
 });
-// Signup endpoint
-// exports.signup = async (req, res) => {
-//     const { name, email, password, mobile, DateofBirth, bio } = req.body;
-//     const uploadImage = req.file ? req.file.path : null;
 
-//     try {
-//         if (!name || !email || !password ) {
-//             return res.status(400).json({ msg: 'All fields are required.' });
-//         }
-
-//         const userExists = await User.findOne({ email });
-//         if (userExists) {
-//             return res.status(400).json({ msg: 'User already exists' });
-//         }
-
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         const userData = { name, email, password: hashedPassword, uploadImage, mobile, DateofBirth, bio };
-
-//         const OTP = Math.floor(1000 + Math.random() * 9000).toString();
-
-//         // Send OTP via email
-//         const mailOptions = {
-//             from: 'sshubham123verma@gmail.com',
-//             to: email,
-//             subject: 'Your OTP for Signup Verification',
-//             text: `Your OTP is ${OTP}. It is valid for 5 minutes.`,
-//         };
-
-//         await transporter.sendMail(mailOptions);
-
-//         // Store OTP and user data temporarily
-//         otpStore.set(email.toLowerCase(), { otp: OTP, expiresAt: Date.now() + 5 * 60 * 1000 });
-//         pendingUsers.set(email.toLowerCase(), userData);
-
-//         console.log('Stored OTP:', otpStore.get(email.toLowerCase()));
-
-//         res.status(200).json({ msg: 'OTP sent to your email successfully.' });
-//     } catch (err) {
-//         console.error('Error in signup:', err.message);
-//         res.status(500).json({ msg: 'Server Error' });
-//     }
-// };
-
-// // Verify OTP endpoint
-// exports.verifyOTP = async (req, res) => {
-//     const { otp, email } = req.body;
-
-//     if (!otp || !email) {
-//         return res.status(400).json({ msg: 'Email and OTP are required.' });
-//     }
-
-//     try {
-//         const trimmedEmail = email.trim().toLowerCase();
-//         console.log('Verifying OTP for email:', trimmedEmail);
-
-//         const storedData = otpStore.get(trimmedEmail);
-//         if (!storedData) {
-//             return res.status(400).json({ msg: 'OTP has expired or is invalid.' });
-//         }
-
-//         if (storedData.otp !== otp) {
-//             return res.status(400).json({ msg: 'Invalid OTP.' });
-//         }
-
-//         if (Date.now() > storedData.expiresAt) {
-//             otpStore.delete(trimmedEmail);
-//             pendingUsers.delete(trimmedEmail);
-//             return res.status(400).json({ msg: 'OTP has expired. Please request a new one.' });
-//         }
-
-//         otpStore.delete(trimmedEmail);
-
-//         const userData = pendingUsers.get(trimmedEmail);
-//         if (!userData) {
-//             return res.status(400).json({ msg: 'User data not found. Please sign up again.' });
-//         }
-
-//         // Save user to database
-//         const newUser = new User(userData);
-//         await newUser.save();
-
-//         pendingUsers.delete(trimmedEmail);
-
-//         const token = jwt.sign(
-//             { id: newUser._id, email: newUser.email },
-//             process.env.JWT_SECRET || 'defaultsecretkey',
-//             { expiresIn: '1h' }
-//         );
-
-//         res.status(200).json({ msg: 'OTP verified successfully. User registered.', token, userId: newUser._id });
-//     } catch (err) {
-//         console.error('Error in verifyOTP:', err.message);
-//         res.status(500).json({ msg: 'Server Error. Please try again later.' });
-//     }
-// };
 
 exports.signup = async (req, res) => {
     const { name, email, password, mobile, DateofBirth, bio } = req.body;
