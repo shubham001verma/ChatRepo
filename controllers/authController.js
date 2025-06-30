@@ -3,16 +3,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const otpStore = new Map();
-const pendingUsers = new Map(); // Temporarily store user data
+const { otpStore, pendingUsers } = require('../utils/otpStore');
 
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.hostinger.com', // Replace with your SMTP server host (e.g., smtp.sendgrid.net, smtp.mailgun.org)
-    port: 465,
-    secure: 465, 
-                    
-                 
+    port: 465, // Common ports: 465 (for SMTPS/SSL) or 587 (for STARTTLS)
+    secure: 465,
     auth: {
         user: 'support@webitof.com', // Your email address
         pass: 'w2k-Em8Q:c3zDRi', // Your email password or app-specific password
@@ -23,15 +20,12 @@ const transporter = nodemailer.createTransport({
     // }
 });
 
-
 exports.signup = async (req, res) => {
     const { name, email, password, mobile, DateofBirth, bio } = req.body;
     const uploadImage = req.file ? req.file.path : null;
 
     try {
-        // if (!name || !email || !password || !mobile) {
-        //     return res.status(400).json({ msg: 'All fields are required.' });
-        // }
+       
 
         // Check if user already exists
         const userExists = await User.findOne({ email });
@@ -67,48 +61,50 @@ exports.signup = async (req, res) => {
     }
 };
 
-// Verify OTP endpoint
+
 exports.verifyOTP = async (req, res) => {
     const { otp, email } = req.body;
 
- 
+    if (!otp || !email) {
+        return res.status(400).json({ msg: 'Email and OTP are required.' });
+    }
 
     try {
         const trimmedEmail = email.trim().toLowerCase();
-        console.log('Verifying OTP for:', trimmedEmail);
-
-        // ✅ Check if OTP exists in memory
         const storedData = otpStore.get(trimmedEmail);
-        console.log('Stored OTP Data:', storedData);
 
+        console.log('🔍 Verifying OTP for:', trimmedEmail);
+        console.log('📦 OTP in store:', storedData);
+
+        // ✅ If OTP data not found (already verified once)
         if (!storedData) {
-            return res.status(400).json({ msg: 'OTP has expired or is invalid.' });
+            return res.status(400).json({ msg: 'OTP already used or not found.' });
         }
 
-        // ✅ Check if OTP matches
+        // ✅ If OTP doesn't match
         if (storedData.otp !== otp) {
             return res.status(400).json({ msg: 'Invalid OTP.' });
         }
 
-        // ✅ Check if OTP expired
+        // ✅ If OTP is expired
         if (Date.now() > storedData.expiresAt) {
             otpStore.delete(trimmedEmail);
             pendingUsers.delete(trimmedEmail);
             return res.status(400).json({ msg: 'OTP has expired. Please request a new one.' });
         }
 
-        // ✅ OTP is valid
-        otpStore.delete(trimmedEmail); // Clear OTP
+        // ✅ If everything is fine, complete registration
         const userData = pendingUsers.get(trimmedEmail);
-
         if (!userData) {
             return res.status(400).json({ msg: 'User data not found. Please sign up again.' });
         }
 
+        userData.code = `USR-${Date.now()}`;
         const newUser = new User(userData);
         await newUser.save();
 
-        pendingUsers.delete(trimmedEmail); // Clear user data
+        otpStore.delete(trimmedEmail);
+        pendingUsers.delete(trimmedEmail);
 
         const token = jwt.sign(
             { id: newUser._id, email: newUser.email },
@@ -116,10 +112,14 @@ exports.verifyOTP = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        return res.status(200).json({ msg: 'OTP verified successfully. User registered.', token, userId: newUser._id });
+        res.status(200).json({
+            msg: 'OTP verified successfully. User registered.',
+            token,
+            userId: newUser._id
+        });
     } catch (err) {
-        console.error('Error in verifyOTP:', err.message);
-        return res.status(500).json({ msg: 'Server error. Please try again later.' });
+        console.error('❌ Error in verifyOTP:', err.message);
+        res.status(500).json({ msg: 'Server Error. Please try again later.' });
     }
 };
 
