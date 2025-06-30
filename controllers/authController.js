@@ -29,9 +29,9 @@ exports.signup = async (req, res) => {
     const uploadImage = req.file ? req.file.path : null;
 
     try {
-        if (!name || !email || !password || !mobile) {
-            return res.status(400).json({ msg: 'All fields are required.' });
-        }
+        // if (!name || !email || !password || !mobile) {
+        //     return res.status(400).json({ msg: 'All fields are required.' });
+        // }
 
         // Check if user already exists
         const userExists = await User.findOne({ email });
