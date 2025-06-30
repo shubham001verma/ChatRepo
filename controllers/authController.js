@@ -9,10 +9,10 @@ const pendingUsers = new Map(); // Temporarily store user data
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.hostinger.com', // Replace with your SMTP server host (e.g., smtp.sendgrid.net, smtp.mailgun.org)
-    port: 465, // Common ports: 465 (for SMTPS/SSL) or 587 (for STARTTLS)
-    secure: false, // Use true for port 465 (SSL), false for port 587 (STARTTLS).
-                    // If using secure: false and port 587, ensure 'requireTLS: true' might be needed
-                    // depending on your server's configuration.
+    port: 465,
+    secure: 465, 
+                    
+                 
     auth: {
         user: 'support@webitof.com', // Your email address
         pass: 'w2k-Em8Q:c3zDRi', // Your email password or app-specific password
@@ -163,7 +163,7 @@ exports.forgetPassword = async (req, res) => {
 
         // Send OTP via email
         const mailOptions = {
-            from: 'sshubham123verma@gmail.com',
+            from: 'support@webitof.com',
             to: email,
             subject: 'Your OTP for Password Reset',
             text: `Your OTP for resetting your password is ${OTP}. It is valid for 5 minutes.`,
